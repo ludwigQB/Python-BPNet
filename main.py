@@ -8,19 +8,19 @@ data_train=pd.read_csv('PTA_T17-1.txt', sep=' ', header=None)
 data_test=pd.read_csv('PTA_G17-1.txt', sep=' ', header=None)
 
 (row, col)=data_train.shape
-col=col-1
+col=col-1                #去除读入的最后一列无效数据
 (row_test, col_test)=data_test.shape
 col_test=col_test-1
 
 ##定义网络参数
 InputN=col-1  ##输入层节点数
-HideN=50  ##隐藏层节点数
-OutputN=1   ##输出层节点数
+HideN=50      ##隐藏层节点数
+OutputN=1     ##输出层节点数
 
 E_max=1e-4        ##截止误差
-Train_num=5000   ##迭代次数
-learnrate=1        ##学习速率
-aerf=0.4
+Train_num=5000    ##迭代次数
+learnrate=1       ##学习速率
+aerf=0.5          ##动量因子
 
 ##数据处理
 train_max=np.max(data_train, axis=0)
@@ -51,8 +51,8 @@ E=np.zeros(Train_num)
 Delta_Ho=np.ones((HideN, row))
 Delta_Hin=np.ones((row, HideN))
 Delta_Hout=np.ones((InputN, HideN, row))
-# fig,ax=plt.subplots()
-# y1=[]
+fig,ax=plt.subplots()
+y1=[]
 for i in range(Train_num):
     Hin=np.dot(x_train, Weight_in)
     Hout=sigmoid(Hin)
@@ -80,10 +80,15 @@ for i in range(Train_num):
 
     Weight_in= Weight_in + Delta_WIn
     Weight_out= Weight_out + Delta_WOut
-    if i%20==0:
-        print(E_train)
-plt.title('loss function in training')
-plt.plot(E)
+    if i%(Train_num/100)==0:
+        y1.append(E_train)
+        plt.ion()
+        plt.title('Loss in training')
+        plt.xlim(0,Train_num)
+        plt.ylim(0,0.2)
+        plt.scatter(i,E_train,color='r',linewidths=0.1)
+        plt.pause(0.01)
+plt.ioff()
 plt.show()
 
 Hin_train=np.dot(x_train,Weight_in)
