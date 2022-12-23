@@ -12,16 +12,6 @@ col=col-1                #去除读入的最后一列无效数据
 (row_test, col_test)=data_test.shape
 col_test=col_test-1
 
-##定义网络参数
-InputN=col-1  ##输入层节点数
-HideN=50      ##隐藏层节点数
-OutputN=1     ##输出层节点数
-
-E_max=1e-4        ##截止误差
-Train_num=5000    ##迭代次数
-learnrate=1       ##学习速率
-aerf=0.5          ##动量因子
-
 ##数据处理
 train_max=np.max(data_train, axis=0)
 train_min=np.min(data_train, axis=0)
@@ -32,6 +22,16 @@ test_max=np.max(data_test, axis=0)
 test_min=np.min(data_test, axis=0)
 data_test=np.array(data_test)
 In_test=normalize(data_test, test_max, test_min, 0)
+
+##定义网络参数
+InputN=col-1  ##输入层节点数
+HideN=50      ##隐藏层节点数
+OutputN=1     ##输出层节点数
+
+E_max=1e-4        ##截止误差
+Train_num=5000    ##迭代次数
+learnrate=1       ##学习速率
+aerf=0.5          ##动量因子
 
 x_train= In_train[:, 0:InputN] ##选取前17列为输入层
 d_train= In_train[:, InputN:col]
