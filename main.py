@@ -25,13 +25,13 @@ In_test=normalize(data_test, test_max, test_min, 0)
 
 ##定义网络参数
 InputN=col-1  ##输入层节点数
-HideN=50      ##隐藏层节点数
+HideN=10      ##隐藏层节点数
 OutputN=1     ##输出层节点数
 
 E_max=1e-4        ##截止误差
 Train_num=5000    ##迭代次数
-learnrate=1       ##学习速率
-aerf=0.5          ##动量因子
+learnrate=0.9       ##学习速率
+aerf=0.9        ##动量因子
 
 x_train= In_train[:, 0:InputN] ##选取前17列为输入层
 d_train= In_train[:, InputN:col]
@@ -41,8 +41,8 @@ x_test= In_test[:, 0:InputN]
 labels_test= data_test[:, InputN:InputN + 1]
 
 ##网络权值初始化
-Weight_in= 2*np.random.randn(InputN, HideN)
-Weight_out= 2*np.random.randn(HideN, OutputN)
+Weight_in= 2*np.random.rand(InputN, HideN)
+Weight_out= 2*np.random.rand(HideN, OutputN)
 Delta_WIn=np.zeros((InputN, HideN))
 Delta_WOut=np.zeros((HideN, OutputN))
 
@@ -59,28 +59,28 @@ for i in range(Train_num):
     Opin=np.dot(Hout, Weight_out)
     Opot=sigmoid(Opin)
 
-    E_p=(d_train - Opot)
-    E_train= 0.5 * np.linalg.det(np.dot(E_p.T,E_p)) / row
-    E[i]=E_train
+    E_p = (d_train - Opot)
+    E_train = 0.5 * np.linalg.det(np.dot(E_p.T,E_p)) / row
+    E[i] = E_train
     if E_train<E_max:
         print("提前完成训练目标")
         break
     Delta_ho= Opot * (1 - Opot) * E_p
     for j in range(row):
-        Delta_Ho[:, j]= learnrate * Delta_ho[j] * Hout[j, :].T
-    Delta_WOut= np.array([np.sum(Delta_Ho, axis=1)]).T / row + aerf * Delta_WOut
+        Delta_Ho[:, j] = learnrate * Hout[j, :].T*Delta_ho[j]
+    Delta_WOut = np.array([np.sum(Delta_Ho, axis=1)]).T / row + aerf * Delta_WOut
 
     for j in range(row):
-        Delta_Hin[j, :]= Hout[j, :] * (1 - Hout[j, :]) * Weight_out.T * Delta_ho[j]
+        Delta_Hin[j, :] = Weight_out.T * Hout[j, :] * (1 - Hout[j, :]) * Delta_ho[j]
 
     for j in range(row):
         for k in range(HideN):
-            Delta_Hout[:, k, j]= learnrate * Delta_Hin[j, k] * x_train[j, :].T
-    Delta_WIn= np.sum(Delta_Hout, axis=2) / row + aerf * Delta_WIn
+            Delta_Hout[:, k, j] = learnrate * x_train[j, :].T * Delta_Hin[j, k]
+    Delta_WIn = np.sum(Delta_Hout, axis=2) / row + aerf * Delta_WIn
 
-    Weight_in= Weight_in + Delta_WIn
-    Weight_out= Weight_out + Delta_WOut
-    if i%(Train_num/100)==0:
+    Weight_in = Weight_in + Delta_WIn
+    Weight_out = Weight_out + Delta_WOut
+    if i%(Train_num/100) == 0:
         y1.append(E_train)
         plt.ion()
         plt.title('Loss in training')
@@ -91,12 +91,12 @@ for i in range(Train_num):
 plt.ioff()
 plt.show()
 
-Hin_train=np.dot(x_train,Weight_in)
-Hout_train=sigmoid(Hin_train)
-Opin_train=np.dot(Hout_train,Weight_out)
-Opout_train=sigmoid(Opin_train)
-pred_train=normalize(Opout_train, train_max[col - 1], train_min[col - 1], 1)
-E1_train=np.abs(labels_train-pred_train)/labels_train
+Hin_train = np.dot(x_train,Weight_in)
+Hout_train = sigmoid(Hin_train)
+Opin_train = np.dot(Hout_train,Weight_out)
+Opout_train = sigmoid(Opin_train)
+pred_train = normalize(Opout_train, train_max[col - 1], train_min[col - 1], 1)
+E1_train = np.abs(labels_train-pred_train)/labels_train
 plt.figure()
 plt.title('Relative Error in Training')
 plt.plot(E1_train)
